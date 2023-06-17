@@ -3,12 +3,13 @@ import { ref } from "vue";
 import { NButton, NEmpty, NInput, NList, NListItem, NModal, NSpace, NUpload, type UploadFileInfo, useMessage } from "naive-ui";
 import { storeToRefs } from "pinia";
 import VirtualList from "vue3-virtual-scroll-list";
+import { field, logger } from "@kirklin/logger";
 import ChatPromptItem from "./ChatPromptItem.vue";
 import { type IPrompt, type IPromptDownloadConfig, usePromptStore } from "@/stores/modules/prompt";
 
-const messgae = useMessage();
+const message = useMessage();
 const promptStore = usePromptStore();
-const { promptDownloadConfig, isShowPromptSotre, promptList, keyword, searchPromptList, optPromptConfig } = storeToRefs(promptStore);
+const { promptDownloadConfig, shouldShowPromptStore, promptList, keyword, searchPromptList, optPromptConfig } = storeToRefs(promptStore);
 
 const isShowDownloadPop = ref(false);
 
@@ -28,26 +29,26 @@ const showAddPromptPop = () => {
 const savePrompt = () => {
   const { type, tmpPrompt, newPrompt } = optPromptConfig.value;
   if (!newPrompt.act) {
-    return messgae.error("提示词标题不能为空");
+    return message.error("提示词标题不能为空");
   }
   if (!newPrompt.prompt) {
-    return messgae.error("提示词描述不能为空");
+    return message.error("提示词描述不能为空");
   }
   if (type === "add") {
     promptList.value = [newPrompt, ...promptList.value];
-    messgae.success("添加提示词成功");
+    message.success("添加提示词成功");
   } else if (type === "edit") {
     if (newPrompt.act === tmpPrompt?.act && newPrompt.prompt === tmpPrompt?.prompt) {
-      messgae.warning("提示词未变更");
+      message.warning("提示词未变更");
       optPromptConfig.value.isShow = false;
       return;
     }
     const rawIndex = promptList.value.findIndex(x => x.act === tmpPrompt?.act && x.prompt === tmpPrompt?.prompt);
     if (rawIndex > -1) {
       promptList.value[rawIndex] = newPrompt;
-      messgae.success("编辑提示词成功");
+      message.success("编辑提示词成功");
     } else {
-      messgae.error("编辑提示词出错");
+      message.error("编辑提示词出错");
     }
   }
   optPromptConfig.value.isShow = false;
@@ -65,27 +66,26 @@ const readFile = (file: File): Promise<string> => {
 };
 
 const importPrompt = async (options: { file: UploadFileInfo; fileList: Array<UploadFileInfo>; event?: Event }) => {
-  // console.log(options.file);
   if (options.file.file) {
     isImporting.value = true;
     const fileText = await readFile(options.file.file);
     const promptData = JSON.parse(fileText);
     const result = promptStore.addPrompt(promptData);
     if (result.result) {
-      messgae.info(`上传文件含 ${promptData.length} 条数据`);
-      messgae.success(`成功导入 ${result.data?.successCount} 条有效数据`);
+      message.info(`上传文件含 ${promptData.length} 条数据`);
+      message.success(`成功导入 ${result.data?.successCount} 条有效数据`);
     } else {
-      messgae.error(result.msg || "提示词格式有误");
+      message.error(result.msg || "提示词格式有误");
     }
     isImporting.value = false;
   } else {
-    messgae.error("上传文件有误");
+    message.error("上传文件有误");
   }
 };
 
 const exportPrompt = () => {
   if (promptList.value.length === 0) {
-    return messgae.error("暂无可导出的提示词数据");
+    return message.error("暂无可导出的提示词数据");
   }
   isExporting.value = true;
   const jsonDataStr = JSON.stringify(promptList.value);
@@ -96,18 +96,18 @@ const exportPrompt = () => {
   link.download = "BingAIPrompts.json";
   link.click();
   URL.revokeObjectURL(url);
-  messgae.success("导出提示词库成功");
+  message.success("导出提示词库成功");
   isExporting.value = false;
 };
 
 const clearPrompt = () => {
   promptList.value = [];
-  messgae.success("清空提示词库成功");
+  message.success("清空提示词库成功");
 };
 
 const downloadPrompt = async (config: IPromptDownloadConfig) => {
   if (!config.url) {
-    return messgae.error("请先输入下载链接");
+    return message.error("请先输入下载链接");
   }
   config.isDownloading = true;
   let jsonData: Array<IPrompt>;
@@ -115,7 +115,7 @@ const downloadPrompt = async (config: IPromptDownloadConfig) => {
     jsonData = await fetch(config.url).then(res => res.json());
   } else if (config.url.endsWith(".csv")) {
     const csvData = await fetch(config.url).then(res => res.text());
-    console.log(csvData);
+    logger.debug("downloadPrompt", field("csvData", csvData));
     jsonData = csvData
       .split("\n")
       .filter(x => x)
@@ -129,21 +129,21 @@ const downloadPrompt = async (config: IPromptDownloadConfig) => {
     jsonData.shift();
   } else {
     config.isDownloading = false;
-    return messgae.error("暂不支持下载此后缀的提示词");
+    return message.error("暂不支持下载此后缀的提示词");
   }
   config.isDownloading = false;
   const result = promptStore.addPrompt(jsonData);
   if (result.result) {
-    messgae.info(`下载文件含 ${jsonData.length} 条数据`);
-    messgae.success(`成功导入 ${result.data?.successCount} 条有效数据`);
+    message.info(`下载文件含 ${jsonData.length} 条数据`);
+    message.success(`成功导入 ${result.data?.successCount} 条有效数据`);
   } else {
-    messgae.error(result.msg || "提示词格式有误");
+    message.error(result.msg || "提示词格式有误");
   }
 };
 </script>
 
 <template>
-  <NModal v-model:show="isShowPromptSotre" class="w-11/12 xl:w-[900px]" preset="card" title="提示词库">
+  <NModal v-model:show="shouldShowPromptStore" class="w-11/12 xl:w-[900px]" preset="card" title="提示词库">
     <div class="flex justify-start flex-wrap gap-2 px-5 pb-2">
       <NInput v-model:value="keyword" class="basis-full xl:basis-0 xl:min-w-[300px]" placeholder="搜索提示词" :clearable="true" />
       <NButton secondary type="info" @click="isShowDownloadPop = true">

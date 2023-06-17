@@ -17,9 +17,9 @@
     "naive-ui": "^2.34.4",
     "pinia": "^2.0.36",
     "pinia-plugin-persistedstate": "^3.1.0",
+    "unocss-preset-chinese": "^0.0.6",
     "vue": "^3.3.2",
     "vue-router": "^4.2.0",
-    "unocss-preset-chinese": "^0.0.6",
     "vue3-virtual-scroll-list": "^0.2.1"
   },
   "devDependencies": {

@@ -16,7 +16,7 @@ const isShowSetTokenModal = ref(false);
 const userToken = ref("");
 const message = useMessage();
 const promptStore = usePromptStore();
-const { isShowPromptSotre } = storeToRefs(promptStore);
+const { shouldShowPromptStore } = storeToRefs(promptStore);
 const isShowClearCacheModal = ref(false);
 const isShowCreateImageModal = ref(false);
 const chatStore = useChatStore();
@@ -77,44 +77,33 @@ const renderDropdownLabel = (option: DropdownOption) => {
 const handleSelect = (key: string) => {
   switch (key) {
     case navType.version:
-      {
-        message.success(`当前版本号为：${__APP_INFO__.version}`);
-      }
+      message.success(`当前版本号为：${__APP_INFO__.version}`);
       break;
     case navType.chatService:
-      {
-        isShowChatServiceSelectModal.value = true;
-        chatStore.checkAllSydneyConfig();
-      }
+      isShowChatServiceSelectModal.value = true;
+      chatStore.checkAllSydneyConfig();
       break;
     case navType.promptStore:
-      {
-        isShowPromptSotre.value = true;
-      }
+      shouldShowPromptStore.value = true;
       break;
     case navType.setToken:
-      {
-        userToken.value = userStore.getUserToken();
-        isShowSetTokenModal.value = true;
-      }
+      userToken.value = userStore.getUserToken();
+      isShowSetTokenModal.value = true;
       break;
     case navType.createImage:
-      {
-        if (!userStore.sysConfig?.isSysCK && !userStore.getUserToken()) {
-          message.warning("体验画图功能需先登录");
-        }
-        isShowCreateImageModal.value = true;
+      if (!userStore.sysConfig?.isSysCK && !userStore.getUserToken()) {
+        message.warning("体验画图功能需先登录");
       }
+      isShowCreateImageModal.value = true;
       break;
     case navType.reset:
-      {
-        isShowClearCacheModal.value = true;
-      }
+      isShowClearCacheModal.value = true;
       break;
     default:
       break;
   }
 };
+
 const resetCache = async () => {
   isShowClearCacheModal.value = false;
   await userStore.resetCache();

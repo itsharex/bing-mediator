@@ -48,7 +48,7 @@ export const usePromptStore = defineStore(
         refer: "",
       },
     ]);
-    const isShowPromptSotre = ref(false);
+    const shouldShowPromptStore = ref(false);
     const isShowChatPrompt = ref(false);
     const promptList = ref<Array<IPrompt>>([]);
     const keyword = ref("");
@@ -76,7 +76,7 @@ export const usePromptStore = defineStore(
     });
 
     function addPrompt(list: Array<IPrompt>): IOptPromptResult<{ successCount: number }> {
-      if (list instanceof Array<IPrompt> && list.every(x => x.act && x.prompt)) {
+      if (list.every(x => x.act && x.prompt)) {
         if (promptList.value.length === 0) {
           promptList.value.push(...list);
           return {
@@ -102,7 +102,7 @@ export const usePromptStore = defineStore(
       }
     }
 
-    return { promptDownloadConfig, isShowPromptSotre, isShowChatPrompt, promptList, keyword, searchPromptList, selectedPromptIndex, optPromptConfig, addPrompt };
+    return { promptDownloadConfig, shouldShowPromptStore, isShowChatPrompt, promptList, keyword, searchPromptList, selectedPromptIndex, optPromptConfig, addPrompt };
   },
   {
     persist: {

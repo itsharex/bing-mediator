@@ -15,6 +15,7 @@ const __APP_INFO__ = {
   devDependencies,
 };
 
+// eslint-disable-next-line unused-imports/no-unused-vars
 const initPwaOptions = (env: Record<string, string>) => {
   const pwaOptions: Partial<VitePWAOptions> = {
     srcDir: "src",
@@ -61,6 +62,7 @@ const initPwaOptions = (env: Record<string, string>) => {
 };
 
 // https://vitejs.dev/config/
+// eslint-disable-next-line unused-imports/no-unused-vars
 export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   return {

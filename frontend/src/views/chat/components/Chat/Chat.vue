@@ -18,7 +18,7 @@ const message = useMessage();
 const isShowLoading = ref(true);
 
 const promptStore = usePromptStore();
-const { isShowPromptSotre, isShowChatPrompt, keyword, promptList, searchPromptList, selectedPromptIndex } = storeToRefs(promptStore);
+const { shouldShowPromptStore, isShowChatPrompt, keyword, promptList, searchPromptList, selectedPromptIndex } = storeToRefs(promptStore);
 
 const chatStore = useChatStore();
 const { isShowChatServiceSelectModal, sydneyConfigs, selectedSydneyBaseUrl } = storeToRefs(chatStore);
@@ -41,19 +41,6 @@ const isAuthBtnLoading = ref(false);
 
 const isShowHistory = computed(() => {
   return (CIB.vm.isMobile && CIB.vm.sidePanel.isVisibleMobile) || (!CIB.vm.isMobile && CIB.vm.sidePanel.isVisibleDesktop);
-});
-
-onMounted(async () => {
-  await initChat();
-  hackDevMode();
-  // CIB.vm.isMobile = isMobile();
-  // show conversion
-  SydneyFullScreenConv.initWithWaitlistUpdate({ cookLoc: {} }, 10);
-  initSysConfig();
-
-  isShowLoading.value = false;
-  hackStyle();
-  initChatPrompt();
 });
 
 const hackDevMode = () => {
@@ -79,30 +66,26 @@ const initChatService = () => {
     chatStore.checkAllSydneyConfig();
   }
 };
-
-const initSysConfig = async () => {
-  const res = await userStore.getSysConfig();
-  switch (res.code) {
-    case ApiResultCode.OK:
-      {
-        if (!res.data.isAuth) {
-          isShowUnauthorizedModal.value = true;
-          return;
-        }
-        afterAuth(res.data);
-      }
-      break;
-    default:
-      message.error(`[${res.code}] ${res.message}`);
-      break;
-  }
-};
-
 const afterAuth = (data: SysConfig) => {
   if (!data.isSysCK) {
     userStore.checkUserToken();
   }
   initChatService();
+};
+const initSysConfig = async () => {
+  const res = await userStore.getSysConfig();
+  switch (res.code) {
+    case ApiResultCode.OK:
+      if (!res.data.isAuth) {
+        isShowUnauthorizedModal.value = true;
+        return;
+      }
+      afterAuth(res.data);
+      break;
+    default:
+      message.error(`[${res.code}] ${res.message}`);
+      break;
+  }
 };
 
 const initChat = async () => {
@@ -138,36 +121,9 @@ interface IActionBarElement extends HTMLElement {
   handleInputTextKey: (ev: KeyboardEvent) => void;
 }
 
-const initChatPrompt = () => {
-  const actionBarEle = document.querySelector("#b_sydConvCont > cib-serp")?.shadowRoot?.querySelector("#cib-action-bar-main") as IActionBarElement;
-  const oldHandleInputTextKey = actionBarEle.handleInputTextKey;
-  actionBarEle.handleInputTextKey = function (ev: KeyboardEvent) {
-    // 有提示词时，优先选择提示词
-    if (ev.key === "Enter" && isShowChatPrompt.value) {
-      return;
-    }
-    return oldHandleInputTextKey.apply(this, [ev]);
-  };
-
-  CIB.vm.actionBar.input.addEventListener("compositionstart", handleInputStart);
-  CIB.vm.actionBar.input.addEventListener("compositionend", handleInputEnd);
-  CIB.vm.actionBar.input.addEventListener("change", handleInputTextChanged);
-  CIB.vm.actionBar.input.addEventListener("input", handleInputTextChanged);
-  // CIB.vm.actionBar.input.addEventListener('keyup', handleInputTextKey);
-  CIB.vm.actionBar.input.addEventListener("keydown", handleInputTextKey);
-  CIB.vm.actionBar.input.addEventListener("focus", handleInputFocus);
-  CIB.vm.actionBar.input.addEventListener("blur", handleInputBlur);
-};
-
 const handleInputStart = (ev: Event) => {
   // console.log('compositionstart : ', ev);
   isInput.value = true;
-};
-
-const handleInputEnd = (ev: Event) => {
-  // console.log('compositionend : ', ev);
-  isInput.value = false;
-  handleInputTextChanged(ev);
 };
 
 const handleInputTextChanged = (ev: Event) => {
@@ -186,7 +142,11 @@ const handleInputTextChanged = (ev: Event) => {
     }
   }
 };
-
+const handleInputEnd = (ev: Event) => {
+  // console.log('compositionend : ', ev);
+  isInput.value = false;
+  handleInputTextChanged(ev);
+};
 const handleInputFocus = (ev: FocusEvent) => {
   // console.log('获取焦点:', ev);
 };
@@ -196,44 +156,6 @@ const handleInputBlur = (ev: FocusEvent) => {
     isShowChatPrompt.value = false;
   }, 200);
 };
-
-const handleInputTextKey = (ev: KeyboardEvent) => {
-  switch (ev.key) {
-    case "ArrowUp":
-      {
-        // ev.preventDefault();
-        if (selectedPromptIndex.value > 0) {
-          selectedPromptIndex.value--;
-          if (scrollbarRef.value) {
-            scrollbarRef.value.scrollToIndex(selectedPromptIndex.value);
-          }
-        }
-      }
-      break;
-    case "ArrowDown":
-      {
-        // ev.preventDefault();
-        if (selectedPromptIndex.value < searchPromptList.value.length - 1) {
-          selectedPromptIndex.value++;
-          if (scrollbarRef.value) {
-            scrollbarRef.value.scrollToIndex(selectedPromptIndex.value);
-          }
-        }
-      }
-      break;
-    case "Tab":
-    case "Enter":
-      {
-        // ev.preventDefault();
-        if (!CIB.vm.actionBar.inputText || !CIB.vm.actionBar.inputText.startsWith("/")) {
-          return;
-        }
-        selectPrompt(searchPromptList.value[selectedPromptIndex.value]);
-      }
-      break;
-  }
-};
-
 const selectPrompt = (item: IPrompt) => {
   // console.log('select prompt : ', item);
   if (!item) {
@@ -242,6 +164,36 @@ const selectPrompt = (item: IPrompt) => {
   keyword.value = "";
   CIB.vm.actionBar.inputText = item.prompt;
   isShowChatPrompt.value = false;
+};
+const handleInputTextKey = (ev: KeyboardEvent) => {
+  switch (ev.key) {
+    case "ArrowUp":
+      // ev.preventDefault();
+      if (selectedPromptIndex.value > 0) {
+        selectedPromptIndex.value--;
+        if (scrollbarRef.value) {
+          scrollbarRef.value?.scrollToIndex(selectedPromptIndex.value);
+        }
+      }
+      break;
+    case "ArrowDown":
+      // ev.preventDefault();
+      if (selectedPromptIndex.value < searchPromptList.value.length - 1) {
+        selectedPromptIndex.value++;
+        if (scrollbarRef.value) {
+          scrollbarRef.value?.scrollToIndex(selectedPromptIndex.value);
+        }
+      }
+      break;
+    case "Tab":
+    case "Enter":
+      // ev.preventDefault();
+      if (!CIB.vm.actionBar.inputText || !CIB.vm.actionBar.inputText.startsWith("/")) {
+        return;
+      }
+      selectPrompt(searchPromptList.value[selectedPromptIndex.value]);
+      break;
+  }
 };
 
 const handlePromptListScroll = () => {
@@ -273,6 +225,38 @@ const auth = async () => {
   }
   isAuthBtnLoading.value = false;
 };
+const initChatPrompt = () => {
+  const actionBarEle = document.querySelector("#b_sydConvCont > cib-serp")?.shadowRoot?.querySelector("#cib-action-bar-main") as IActionBarElement;
+  const oldHandleInputTextKey = actionBarEle.handleInputTextKey;
+  actionBarEle.handleInputTextKey = function (ev: KeyboardEvent) {
+    // 有提示词时，优先选择提示词
+    if (ev.key === "Enter" && isShowChatPrompt.value) {
+      return;
+    }
+    return oldHandleInputTextKey.apply(this, [ev]);
+  };
+
+  CIB.vm.actionBar.input.addEventListener("compositionstart", handleInputStart);
+  CIB.vm.actionBar.input.addEventListener("compositionend", handleInputEnd);
+  CIB.vm.actionBar.input.addEventListener("change", handleInputTextChanged);
+  CIB.vm.actionBar.input.addEventListener("input", handleInputTextChanged);
+  // CIB.vm.actionBar.input.addEventListener('keyup', handleInputTextKey);
+  CIB.vm.actionBar.input.addEventListener("keydown", handleInputTextKey);
+  CIB.vm.actionBar.input.addEventListener("focus", handleInputFocus);
+  CIB.vm.actionBar.input.addEventListener("blur", handleInputBlur);
+};
+onMounted(async () => {
+  await initChat();
+  hackDevMode();
+  // CIB.vm.isMobile = isMobile();
+  // show conversion
+  SydneyFullScreenConv.initWithWaitlistUpdate({ cookLoc: {} }, 10);
+  await initSysConfig();
+
+  isShowLoading.value = false;
+  hackStyle();
+  initChatPrompt();
+});
 </script>
 
 <template>
@@ -299,7 +283,7 @@ const auth = async () => {
       />
       <NEmpty v-else class="bg-white w-full max-w-[1060px] max-h-[390px] rounded-xl py-6" description="暂未设置提示词数据">
         <template #extra>
-          <NButton secondary type="info" @click="isShowPromptSotre = true">
+          <NButton secondary type="info" @click="shouldShowPromptStore = true">
             去提示词库添加
           </NButton>
         </template>

@@ -3,7 +3,7 @@ export const isMobile = () => {
   return mobileRegex.test(navigator.userAgent);
 };
 
-export const sleep = (timeout: number) => new Promise((resolve, reject) => setTimeout(resolve, timeout));
+export const sleep = (timeout: number) => new Promise(resolve => setTimeout(resolve, timeout));
 
 export const copy = async (text: string) => {
   if (navigator.clipboard && navigator.clipboard.writeText) {
