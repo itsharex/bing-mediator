@@ -1,4 +1,7 @@
+// reset css
+import "@kirklin/reset-css/kirklin.css";
 import "./assets/css/main.css";
+import "uno.css";
 
 import { createApp } from "vue";
 import { setupStore } from "./stores";

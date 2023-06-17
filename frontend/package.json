@@ -12,11 +12,14 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
+    "@kirklin/logger": "^0.0.2",
+    "@kirklin/reset-css": "^0.0.3",
     "naive-ui": "^2.34.4",
     "pinia": "^2.0.36",
     "pinia-plugin-persistedstate": "^3.1.0",
     "vue": "^3.3.2",
     "vue-router": "^4.2.0",
+    "unocss-preset-chinese": "^0.0.6",
     "vue3-virtual-scroll-list": "^0.2.1"
   },
   "devDependencies": {
@@ -25,12 +28,10 @@
     "@types/node": "^18.16.8",
     "@vitejs/plugin-vue": "^4.2.3",
     "@vue/tsconfig": "^0.4.0",
-    "autoprefixer": "^10.4.14",
     "eslint": "^8.39.0",
     "npm-run-all": "^4.1.5",
-    "postcss": "^8.4.23",
-    "tailwindcss": "^3.3.2",
     "typescript": "~5.0.4",
+    "unocss": "^0.53.1",
     "vite": "^4.3.5",
     "vite-plugin-pwa": "^0.14.7",
     "vue-tsc": "^1.6.4",

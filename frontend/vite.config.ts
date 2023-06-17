@@ -1,6 +1,7 @@
 import { URL, fileURLToPath } from "node:url";
 import { defineConfig, loadEnv } from "vite";
 import vue from "@vitejs/plugin-vue";
+import Unocss from "unocss/vite";
 import type { VitePWAOptions } from "vite-plugin-pwa";
 import { VitePWA } from "vite-plugin-pwa";
 import pkg from "./package.json";
@@ -79,7 +80,17 @@ export default defineConfig(({ command, mode }) => {
     define: {
       __APP_INFO__: JSON.stringify(__APP_INFO__),
     },
-    plugins: [vue(), VitePWA(initPwaOptions(env))],
+    plugins: [
+      vue(),
+      VitePWA(initPwaOptions(env)),
+      /**
+       * unocss
+       * @see https://github.com/unocss/unocss
+       * see unocss.config.ts for config
+       */
+      Unocss(),
+
+    ],
     resolve: {
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url)),
