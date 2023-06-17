@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: bing-mediator
+    # oregon: frankfurt
+    plan: free
+    env: go
+    buildCommand: go build -ldflags="-s -w" -tags netgo -trimpath -o bing-mediator main.go
+    startCommand: ./bing-mediator

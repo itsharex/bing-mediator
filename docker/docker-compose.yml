@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  bing-mediator:
+    # 镜像名称
+    image: kirklin/bing-mediator
+    # 容器名称
+    container_name: bing-mediator  
+    # 自启动
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+    # environment:
+    #   - BING_MEDIATOR_SOCKS_URL=192.168.0.88:1070
+    #   - BING_MEDIATOR_SOCKS_USER=xxx
+    #   - BING_MEDIATOR_SOCKS_PWD=xxx
+    #   - BING_MEDIATOR_USER_TOKEN_1=xxx
+    #   - BING_MEDIATOR_USER_TOKEN_2=xxx
+  
+#   bing-mediator:
+#     # 镜像名称
+#     image: kirklin/bing-mediator
+#     # 容器名称
+#     container_name: bing-mediator
+#     build:
+#       context: ../
+#       dockerfile: docker/Dockerfile      
+#     # 自启动
+#     restart: unless-stopped
+#     # 加入指定网络
+#     networks:
+#       - MyNetwork    
+#     ports:
+#       - 8888:8080
+#     environment:
+#       - BING_MEDIATOR_SOCKS_URL=192.168.0.88:1070
+#       # - BING_MEDIATOR_SOCKS_USER=xxx
+#       # - BING_MEDIATOR_SOCKS_PWD=xxx        
+
+# networks:
+#   MyNetwork:
+#     external: true
+
