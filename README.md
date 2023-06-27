@@ -14,20 +14,21 @@
 
 🌟 遇到任何问题，用户可以首先单击左下角“新主题”图标尝试解决。如果不行，可以采用清空缓存（Shift + F5 或 Ctrl + Shift + R 或右上角设置中的一键重置）。若仍有问题，可以通过清理浏览器缓存及 Cookie（例如24小时限制、未登录提示等）进行解决。
 
-- [bing-mediator](#bing-mediator)
-  - [网页展示](#网页展示)
-  - [侧边栏](#侧边栏)
-  - [演示站点](#演示站点)
-  - [设置用户](#设置用户)
-  - [环境变量](#环境变量)
-  - [部署](#部署)
-    - [Docker](#Docker)
-    - [Release](#Release)
-    - [Railway](#Railway)
-    - [Vercel](#Vercel)
-    - [Render](#Render)
-  - [部署聊天服务器](#部署聊天服务器)
-  - [TODO](#TODO)
+## 演示站点
+
+- https://www.thirdgpt.com
+
+### Vercel 搭建
+
+- https://bing-vercel.thirdgpt.com
+
+- https://bing-mediator-kirklin.vercel.app
+
+### Render 搭建
+
+- https://bing-render.thirdgpt.com
+
+- https://bing-mediator.onrender.com
 
 ## 网页展示
 
@@ -61,28 +62,6 @@
 ![聊天](./docs/img/sidebar-chat.png)
 
 ![撰写](./docs/img/sidebar-compose.png)
-
-## 演示站点
-
-- https://bing.thirdgpt.com
-
-### Railway 搭建
-
-- https://bing-railway.thirdgpt.com
-
-- https://bing-mediator-production.up.railway.app
-
-### Vercel 搭建
-
-- https://bing-vercel.thirdgpt.com
-
-- https://bing-mediator-kirklin.vercel.app
-
-### Render 搭建
-
-- https://bing-render.thirdgpt.com
-
-- https://bing-mediator.onrender.com
 
 ## 设置用户
 
